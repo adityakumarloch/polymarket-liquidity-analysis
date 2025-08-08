@@ -1,9 +1,16 @@
 export type Market = {
-  id: "market_id";
-  token_id: "token_identifier";
-  question: "market_question";
-  liquidity_num: 150000;
-  archived: false;
-  active: true;
-  closed: false;
+  id: string;
+  token_id: string;
+  question: string;
+  archived: boolean;
+  active: boolean;
+  liquidity: string;
+  closed: boolean;
+
+  clobTokenIds: string[];
 };
+
+export type Orderbook = {
+  price: string;
+  size: string;
+}[];
