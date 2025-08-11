@@ -51,8 +51,10 @@ export default function MarketBlock({ market }: { market: MarketType }) {
       setOrderbook(data);
 
       // Calculate mid-price from best bid/ask
-      const bestBid = market.bestBid;
-      const bestAsk = market.bestAsk;
+      const bestBid =
+        data?.bids?.length > 0 ? parseFloat(data.bids[0].price) : null;
+      const bestAsk =
+        data?.asks?.length > 0 ? parseFloat(data.asks[0].price) : null;
 
       if (bestBid !== null && bestAsk !== null) {
         const midPrice = (bestBid + bestAsk) / 2;
@@ -128,11 +130,11 @@ export default function MarketBlock({ market }: { market: MarketType }) {
       </div>
 
       <div className="text-sm text-gray-500 flex items-center justify-between">
-        <div>Mid price: {midPrice}</div>
+        <div>Mid price: ${midPrice}</div>
         <div className="text-xs text-gray-500">(best bid + best ask) / 2</div>
       </div>
       <div className="text-sm text-gray-500 flex items-center justify-between">
-        <div>Total depth: {abbreviateNumber(totalDepth)}</div>
+        <div>Total depth: ${abbreviateNumber(totalDepth)}</div>
         <div className="text-xs text-gray-500">+- 2% range</div>
       </div>
       <div className="text-sm text-gray-500 flex items-center justify-between">
