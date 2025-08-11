@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { Market, Orderbook } from "./types.app";
+import { MarketType, Orderbook } from "./types.app";
 import { abbreviateNumber } from "@/utils/reusable-functions";
+import moment from "moment";
 
-export default function MarketBlock({ market }: { market: Market }) {
+export default function MarketBlock({ market }: { market: MarketType }) {
   // console.log("The market data ", market);
 
   const [loadingLeverage, setLoadingLeverage] = useState<boolean>(false);
@@ -133,6 +134,9 @@ export default function MarketBlock({ market }: { market: Market }) {
       <div className="text-sm text-gray-500 flex items-center justify-between">
         <div>Total depth: {abbreviateNumber(totalDepth)}</div>
         <div className="text-xs text-gray-500">+- 2% range</div>
+      </div>
+      <div className="text-sm text-gray-500 flex items-center justify-between">
+        <div>End Date: {moment(market.endDate).fromNow()}</div>
       </div>
       <div className="mt-2">
         <div className="font-semibold text-gray-700">
