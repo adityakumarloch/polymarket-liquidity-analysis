@@ -25,7 +25,7 @@ export default function Home() {
         active: "true",
         closed: "false",
         liquidity_num_min: minLiquidity.toString(),
-        limit: "5",
+        limit: "50",
         ascending: sortOrder === "asc" ? "true" : "false",
         order: sortBy,
       });
@@ -55,7 +55,7 @@ export default function Home() {
 
   return (
     <div className="p-8 ">
-      <div className="w-full max-w-4xl flex flex-col gap-4">
+      <div className="w-full flex flex-col gap-4">
         <h1 className="text-3xl font-bold mb-6">
           Polymarket Liquidity Analysis
         </h1>

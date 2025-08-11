@@ -1,16 +1,28 @@
 import { useEffect, useState } from "react";
 import { Market, Orderbook } from "./types.app";
+import { abbreviateNumber } from "@/utils/reusable-functions";
 
 export default function MarketBlock({ market }: { market: Market }) {
   // console.log("The market data ", market);
 
+  const [loadingLeverage, setLoadingLeverage] = useState<boolean>(false);
+  const [canBeLeveraged, setCanBeLeveraged] = useState<boolean>(false);
   const [midPrice, setMidPrice] = useState<number>(0);
   const [totalDepth, setTotalDepth] = useState<number>(0);
   const [orderbook, setOrderbook] = useState<{
     bids: Orderbook;
     asks: Orderbook;
   }>({ bids: [], asks: [] });
+
+  useEffect(() => {
+    if (totalDepth > 20000 && Number(market.liquidity) > 100000) {
+      setCanBeLeveraged(true);
+    } else {
+      setCanBeLeveraged(false);
+    }
+  }, [totalDepth]);
   const getTokenData = async () => {
+    setLoadingLeverage(true);
     // Parse clobTokenIds as array if needed
     let clobTokenIds: string[] = [];
     if (typeof market.clobTokenIds === "string") {
@@ -38,16 +50,14 @@ export default function MarketBlock({ market }: { market: Market }) {
       setOrderbook(data);
 
       // Calculate mid-price from best bid/ask
-      const bestBid =
-        data?.bids?.length > 0 ? parseFloat(data.bids[0].price) : null;
-      const bestAsk =
-        data?.asks?.length > 0 ? parseFloat(data.asks[0].price) : null;
+      const bestBid = market.bestBid;
+      const bestAsk = market.bestAsk;
 
       if (bestBid !== null && bestAsk !== null) {
         const midPrice = (bestBid + bestAsk) / 2;
-        // Calculate price bounds
-        const upper_bound = midPrice * 1.02;
+        // Calculate total depth as the sum of order sizes within ±2% of the midPrice
         const lower_bound = midPrice * 0.98;
+        const upper_bound = midPrice * 1.02;
 
         // Sum bid liquidity for orders with price >= lower_bound
         let bidLiquidity = 0;
@@ -76,10 +86,9 @@ export default function MarketBlock({ market }: { market: Market }) {
         console.log("Cannot calculate mid-price: missing best bid or ask.");
       }
     }
+    setLoadingLeverage(false);
   };
-  useEffect(() => {
-    getTokenData();
-  }, []);
+
   console.log("The market ", market);
 
   const [isOrderbookOpen, setIsOrderbookOpen] = useState<boolean>(false);
@@ -90,11 +99,41 @@ export default function MarketBlock({ market }: { market: Market }) {
 
   return (
     <div className="bg-gray-100 p-4 rounded-md mt-2">
+      <div className="w-full flex justify-between">
+        <div>
+          {totalDepth ? (
+            <div
+              className={`w-4 h-4 ${
+                canBeLeveraged ? "bg-green-500" : "bg-red-500"
+              } rounded-full`}
+            ></div>
+          ) : null}
+        </div>
+        <button
+          disabled={loadingLeverage}
+          className="cursor-pointer text-xs border rounded-md px-2 py-1 bg-white hover:bg-black hover:text-white disabled:opacity-50 disabled:pointer-events-none"
+          onClick={getTokenData}
+        >
+          {loadingLeverage ? "Calculating..." : "Calculate Leverage"}
+        </button>
+      </div>
       <div className="text-md text-black">{market.question}</div>
 
-      <div className="text-sm text-gray-500">liquidity: {market.liquidity}</div>
-      <div className="text-sm text-gray-500">Mid price: {midPrice}</div>
-      <div className="text-sm text-gray-500">Total depth: {totalDepth}</div>
+      <div className="text-sm text-gray-500 flex items-center justify-between mt-2">
+        <div>Liquidity: ${abbreviateNumber(Number(market.liquidity))}</div>
+        <div className="text-xs text-gray-500">
+          (sum of price) * (shares on the orderbook)
+        </div>
+      </div>
+
+      <div className="text-sm text-gray-500 flex items-center justify-between">
+        <div>Mid price: {midPrice}</div>
+        <div className="text-xs text-gray-500">(best bid + best ask) / 2</div>
+      </div>
+      <div className="text-sm text-gray-500 flex items-center justify-between">
+        <div>Total depth: {abbreviateNumber(totalDepth)}</div>
+        <div className="text-xs text-gray-500">+- 2% range</div>
+      </div>
       <div className="mt-2">
         <div className="font-semibold text-gray-700">
           Orderbook

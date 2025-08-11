@@ -6,7 +6,8 @@ export type Market = {
   active: boolean;
   liquidity: string;
   closed: boolean;
-
+  bestBid: number;
+  bestAsk: number;
   clobTokenIds: string[];
 };
 

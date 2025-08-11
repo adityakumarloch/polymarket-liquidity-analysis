@@ -5,14 +5,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
 
     // Build the query parameters
-    const params = new URLSearchParams({
-      active: searchParams.get("active") || "true",
-      archived: searchParams.get("archived") || "false",
-      closed: searchParams.get("closed") || "false",
-      liquidity_num_min: searchParams.get("liquidity_num_min") || "100000",
-    });
-
-    const url = `https://gamma-api.polymarket.com/markets?${params.toString()}`;
+    const url = `https://gamma-api.polymarket.com/markets?${searchParams.toString()}`;
 
     const response = await fetch(url, {
       method: "GET",
